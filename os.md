@@ -9,14 +9,21 @@ We are using the Lite version, since we do not need or want a desktop environmen
 
 ## OS installation
 
-Install Raspberry Pi OS Lite 64-bit.
+~Install Raspberry Pi OS Lite 64-bit.~
 
 If your CM4 has eMMC, follow these [instructions](https://www.raspberrypi.com/documentation/computers/compute-module.html#flashing-the-compute-module-emmc).
-When using the Raspberry Pi Imager, select `Raspberry Pi OS (other)` and then  `Raspberry Pi OS Lite (64-bit)`.
+When using the Raspberry Pi Imager, select ~`Raspberry Pi OS (other)` and then  `Raspberry Pi OS Lite (64-bit)`~.
 
 TODO: installation without eMMC
 
 TODO: What is the minimum amount of RAM for 64-bit to be a better choice than 32-bit? Not sure if 1Gb RAM would work better with a 32-bit OS. 
+
+DOING: installation with MATE for ROS1 access
+ 
+1. flash (via eMMC) the **Ubuntu Server 20.04.6** image in the rpi installer menu.
+2. after server installation `sudo apt-get install mate-desktop-full` with lightweight gui option (non-default)
+3. look at the `mate-ros1` branch of this repo
+
 
 ## OS configuration
 
