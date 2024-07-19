@@ -1,69 +1,69 @@
 # CM4 OS installation and configuration
 
-These instructions are for the Raspberry Pi OS Lite. Raspberry Pi OS used to be called Raspbian.
+These instructions are for the Ubuntu MATE 20.04. it is EOL, just like ROS1 :,) .
 
-As of the time of writing (early 2024), the current version of Raspberry Pi OS is based on Debian 12 (Bookworm).
-The legacy version of Raspberry Pi OS is based on Debian 11 (Bullseye).
-We are using Raspberry Pi OS, since it is optimized for the Raspberry Pi hardware.
-We are using the Lite version, since we do not need or want a desktop environment for this application. We are also using the 64-bit version, since this takes best advantage of the CM4 hardware (particularly with 8Gb RAM).
+As of the time of writing (mid 2024), `$ hostnamectl` yields:
+```
+   Static hostname: ubuntu
+         Icon name: computer
+        Machine ID: ac80877c29c349bea619b6e4d97341e9
+           Boot ID: 16cc82b488e94745b9169004680e8b0b
+  Operating System: Ubuntu 20.04.5 LTS
+            Kernel: Linux 5.4.0-1111-raspi
+      Architecture: arm64
+```
+We are using MATE, since it can run ROS1 and interact with `ublox_driver` (HKUST; TODO: add link)
+We are using the server-to-mate install method, which allows for the `ros-noetic-base` to be installed w/o dependency rabbit-hole. We are also using the 64-bit version, since this takes best advantage of the CM4 hardware (ours has 4Gb RAM).
 
 ## OS installation
 
-~Install Raspberry Pi OS Lite 64-bit.~
+Install Ubuntu 20.04 Server 64-bit.
 
 If your CM4 has eMMC, follow these [instructions](https://www.raspberrypi.com/documentation/computers/compute-module.html#flashing-the-compute-module-emmc).
-When using the Raspberry Pi Imager, select ~`Raspberry Pi OS (other)` and then  `Raspberry Pi OS Lite (64-bit)`~.
+When using the Raspberry Pi Imager, select `Other general purpose OS` and then `Ubuntu Server 20.04.5 LTS`.
 
-TODO: installation without eMMC
+... Else (w/o eMMC) do the same thing on a **FAST** microSD card of your choice. [brand/speed/size recommendations](https://ubuntu-mate.org/raspberry-pi/) on MATE's docsite.
 
-TODO: What is the minimum amount of RAM for 64-bit to be a better choice than 32-bit? Not sure if 1Gb RAM would work better with a 32-bit OS. 
+TODO: link installation with MATE specifics
+after server installation `sudo apt-get install mate-desktop-full` with lightweight gui option (non-default)
 
-DOING: installation with MATE for ROS1 access
- 
-1. flash (via eMMC) the **Ubuntu Server 20.04.6** image in the rpi installer menu.
-2. after server installation `sudo apt-get install mate-desktop-full` with lightweight gui option (non-default)
-3. look at the `mate-ros1` branch of this repo
-
+Install `ros-noetic-base` as you would on any ubuntu 20.04 distro.
 
 ## OS configuration
 
+**TODO: confirm the following works on MATE? my guess is: no**
 If you want to do this using SSH from your main machine, then
 
-* run `raspi-config` to enable SSH (under Interfacing)
-* find the current IP address using `ifconfig`
+~* run `raspi-config` to enable SSH (under Interfacing)~ *maybe?*
+* find the current IP address using `ifconfig` **yes**
 
 Update packages
-
 ```
 sudo apt update
 sudo apt upgrade
 ```
 
-Run `raspi-config`:
-
-* enable serial port (under Interface/Serial Port); answer
-   * No to login shell accessible over serial
-   * Yes to enable serial port hardware
+MATE has **serial port hardware enabled by default**, but to confirm: check 
+- `/boot/firmware/config.txt` contains: `enable_uart=1`
+- `/boot/firmware/cmdline.txt` contains: `console=serial0,115200`
 
 Configure the Device Tree for the CM4 and the IO board by adding the following
-at the end of `/boot/firmware/config.txt` (on Raspberry Pi OS 11, it's `/boot/config.txt`).
+at the end of `/boot/firmware/config.txt`
 
 ```
 # Enable GPIO pin 18 for PPS (not always necessary, but useful for testing)
 dtoverlay=pps-gpio,gpiopin=18
 # realtime clock
 dtoverlay=i2c-rtc,pcf85063a,i2c_csi_dsi
-# fan
+# fan **maybe unneccessary cuz fan already working? **
+
 dtoverlay=i2c-fan,emc2301,i2c_csi_dsi
 # Make /dev/ttyAMA0 be connected to GPIO header pins 8 and 10
 # This always disables Bluetooth
 dtoverlay=disable-bt
 ```
 
-Disable the system service that initialises the modem:
-```
-sudo systemctl disable hciuart
-```
+~Disable the system service that initialises the modem:~ doesn't exist on MATE
 
 Set the timezone:
 
@@ -71,9 +71,6 @@ Set the timezone:
 sudo dpkg-reconfigure tzdata
 ```
 
-Use raspi-config to set
-* wifi country (under System Options > Wireless LAN)
-* hostname (under System Options)
 
 Reboot.
 
